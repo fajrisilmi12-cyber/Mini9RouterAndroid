@@ -8,21 +8,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:text="Mini9Router"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <TextView android:text="Mini9Router" android:textSize="26sp" android:textStyle="bold"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/status"
-            android:text="Status: STOPPED"
-            android:textSize="18sp"
-            android:paddingTop="8dp"
-            android:paddingBottom="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/status" android:text="Status: STOPPED" android:textSize="18sp"
+            android:paddingTop="8dp" android:paddingBottom="12dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         <EditText android:id="@+id/port" android:hint="Port (20128)" android:inputType="number"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
@@ -46,11 +37,11 @@
                 android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/info"
+        <Button android:id="@+id/hermesBtn" android:text="OPEN HERMES LITE"
+            android:layout_marginTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/info"
             android:text="Endpoint: /v1/chat/completions, /v1/models, /health"
-            android:paddingTop="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:paddingTop="14dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     </LinearLayout>
 </ScrollView>
