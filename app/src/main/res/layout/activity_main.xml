@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Mini9Router"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/status"
+            android:text="Status: STOPPED"
+            android:textSize="18sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText android:id="@+id/port" android:hint="Port (20128)" android:inputType="number"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/baseUrl" android:hint="Provider base URL, contoh https://router.bynara.id/v1"
+            android:inputType="textUri" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/providerKey" android:hint="Provider API key"
+            android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/model" android:hint="Model provider, contoh AGY"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/localKey" android:hint="Local API key (opsional)"
+            android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+        <CheckBox android:id="@+id/autoBoot" android:text="Start otomatis setelah boot"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <LinearLayout android:orientation="horizontal"
+            android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/startBtn" android:text="START"
+                android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <Button android:id="@+id/stopBtn" android:text="STOP"
+                android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/info"
+            android:text="Endpoint: /v1/chat/completions, /v1/models, /health"
+            android:paddingTop="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
