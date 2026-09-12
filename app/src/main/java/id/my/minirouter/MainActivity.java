@@ -36,6 +36,12 @@ public class MainActivity extends Activity {
             stopService(new Intent(this, GatewayService.class));
             status.setText("Status: STOPPED");
         });
+
+        findViewById(R.id.hermesBtn).setOnClickListener(v -> {
+            save();
+            startService(new Intent(this, GatewayService.class));
+            startActivity(new Intent(this, HermesActivity.class));
+        });
     }
 
     private void load() {
