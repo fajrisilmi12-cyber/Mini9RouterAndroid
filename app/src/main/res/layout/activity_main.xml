@@ -4,30 +4,65 @@
     android:layout_height="match_parent">
     <LinearLayout
         android:orientation="vertical"
-        android:padding="18dp"
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView android:text="Mini9Router" android:textSize="26sp" android:textStyle="bold"
+        <TextView android:text="9Router Mobile" android:textSize="26sp" android:textStyle="bold"
             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         <TextView android:id="@+id/status" android:text="Status: STOPPED" android:textSize="18sp"
-            android:paddingTop="8dp" android:paddingBottom="12dp"
+            android:paddingTop="6dp" android:paddingBottom="10dp"
             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         <EditText android:id="@+id/port" android:hint="Port (20128)" android:inputType="number"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <EditText android:id="@+id/baseUrl" android:hint="Provider base URL, contoh https://router.bynara.id/v1"
-            android:inputType="textUri" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <EditText android:id="@+id/providerKey" android:hint="Provider API key"
+        <EditText android:id="@+id/localKey" android:hint="Local API key"
             android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <EditText android:id="@+id/model" android:hint="Model provider, contoh AGY"
+        <EditText android:id="@+id/model" android:hint="Public model alias, contoh AGY"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <EditText android:id="@+id/localKey" android:hint="Local API key (opsional)"
+
+        <TextView android:text="Provider 1 (Primary)" android:textStyle="bold" android:paddingTop="12dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <CheckBox android:id="@+id/p1Enabled" android:text="Enabled"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p1Name" android:hint="Nama provider, contoh Nara"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p1Url" android:hint="Base URL /v1"
+            android:inputType="textUri" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p1Key" android:hint="API key"
             android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p1Model" android:hint="Upstream model"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+        <TextView android:text="Provider 2 (Fallback)" android:textStyle="bold" android:paddingTop="12dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <CheckBox android:id="@+id/p2Enabled" android:text="Enabled"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p2Name" android:hint="Nama provider"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p2Url" android:hint="Base URL /v1"
+            android:inputType="textUri" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p2Key" android:hint="API key"
+            android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p2Model" android:hint="Upstream model"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+        <TextView android:text="Provider 3 (Fallback)" android:textStyle="bold" android:paddingTop="12dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <CheckBox android:id="@+id/p3Enabled" android:text="Enabled"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p3Name" android:hint="Nama provider"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p3Url" android:hint="Base URL /v1"
+            android:inputType="textUri" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p3Key" android:hint="API key"
+            android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/p3Model" android:hint="Upstream model"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
         <CheckBox android:id="@+id/autoBoot" android:text="Start otomatis setelah boot"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            android:paddingTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         <LinearLayout android:orientation="horizontal"
             android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -37,11 +72,9 @@
                 android:layout_weight="1" android:layout_width="0dp" android:layout_height="wrap_content"/>
         </LinearLayout>
 
-        <Button android:id="@+id/hermesBtn" android:text="OPEN HERMES LITE"
-            android:layout_marginTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-
         <TextView android:id="@+id/info"
-            android:text="Endpoint: /v1/chat/completions, /v1/models, /health"
-            android:paddingTop="14dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            android:text="Dashboard: http://IP-HP:20128/dashboard"
+            android:paddingTop="12dp" android:paddingBottom="20dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
     </LinearLayout>
 </ScrollView>
