@@ -1,0 +1,21 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'id.my.minirouter'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "id.my.minirouter"
+        minSdk 21
+        targetSdk 22
+        versionCode 1
+        versionName "0.1"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
