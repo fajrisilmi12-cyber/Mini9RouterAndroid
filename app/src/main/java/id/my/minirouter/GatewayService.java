@@ -69,9 +69,10 @@ public class GatewayService extends Service {
 
     private void handle(Socket socket, SharedPreferences cfg) {
         try {
-            socket.setSoTimeout(120000);
+            socket.setSoTimeout(180000);
+            socket.setTcpNoDelay(true);
             BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
-            OutputStream out = socket.getOutputStream();
+            OutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
             String requestLine = readLine(in);
             if (requestLine == null) return;
@@ -109,7 +110,7 @@ public class GatewayService extends Service {
             }
 
             if ("GET".equals(method) && "/health".equals(path)) {
-                respond(out, 200, "{\"ok\":true,\"service\":\"Mini9Router Android\"}");
+                respond(out, 200, "{\"ok\":true,\"service\":\"Mini9Router Android\",\"streaming\":true}");
                 return;
             }
 
@@ -127,7 +128,9 @@ public class GatewayService extends Service {
                     if (n < 0) break;
                     off += n;
                 }
-                proxy(out, body, cfg);
+                String bodyText = new String(body, StandardCharsets.UTF_8);
+                boolean wantsStream = bodyText.matches("(?s).*\\\"stream\\\"\\s*:\\s*true.*");
+                proxy(out, body, cfg, wantsStream);
                 return;
             }
 
@@ -140,28 +143,72 @@ public class GatewayService extends Service {
         }
     }
 
-    private void proxy(OutputStream client, byte[] body, SharedPreferences cfg) throws Exception {
+    private void proxy(OutputStream client, byte[] body, SharedPreferences cfg, boolean wantsStream) throws Exception {
         String base = cfg.getString("baseUrl","https://router.bynara.id/v1");
         while (base.endsWith("/")) base = base.substring(0, base.length()-1);
         URL url = new URL(base + "/chat/completions");
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
         c.setConnectTimeout(30000);
-        c.setReadTimeout(120000);
+        c.setReadTimeout(180000);
         c.setRequestMethod("POST");
         c.setDoOutput(true);
         c.setRequestProperty("Content-Type", "application/json");
-        c.setRequestProperty("Accept", "application/json");
+        c.setRequestProperty("Accept", wantsStream ? "text/event-stream" : "application/json");
+        c.setRequestProperty("Connection", "keep-alive");
         String key = cfg.getString("providerKey","");
         if (!key.isEmpty()) c.setRequestProperty("Authorization", "Bearer " + key);
-        try (OutputStream os = c.getOutputStream()) { os.write(body); }
+        try (OutputStream os = c.getOutputStream()) { os.write(body); os.flush(); }
 
         int code = c.getResponseCode();
         InputStream pin = code >= 400 ? c.getErrorStream() : c.getInputStream();
         if (pin == null) pin = new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8));
-        byte[] data = readAll(pin);
-        String status = code >= 200 && code < 300 ? "OK" : "Upstream";
-        writeRaw(client, code, status, data, c.getContentType());
+        String upstreamType = c.getContentType();
+
+        if (wantsStream && code >= 200 && code < 300) {
+            writeStreamHeaders(client, upstreamType);
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = pin.read(buf)) != -1) {
+                if (n == 0) continue;
+                writeChunk(client, buf, n);
+            }
+            finishChunks(client);
+        } else {
+            byte[] data = readAll(pin);
+            String status = code >= 200 && code < 300 ? "OK" : "Upstream";
+            writeRaw(client, code, status, data, upstreamType);
+        }
         c.disconnect();
+    }
+
+    private static void writeStreamHeaders(OutputStream out, String type) throws IOException {
+        if (type == null || !type.toLowerCase(Locale.US).contains("text/event-stream")) {
+            type = "text/event-stream; charset=utf-8";
+        }
+        String h = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: " + type + "\r\n" +
+                "Cache-Control: no-cache, no-transform\r\n" +
+                "X-Accel-Buffering: no\r\n" +
+                "Transfer-Encoding: chunked\r\n" +
+                "Access-Control-Allow-Origin: *\r\n" +
+                "Access-Control-Allow-Headers: Authorization, Content-Type\r\n" +
+                "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" +
+                "Connection: keep-alive\r\n\r\n";
+        out.write(h.getBytes(StandardCharsets.ISO_8859_1));
+        out.flush();
+    }
+
+    private static void writeChunk(OutputStream out, byte[] data, int len) throws IOException {
+        String prefix = Integer.toHexString(len) + "\r\n";
+        out.write(prefix.getBytes(StandardCharsets.ISO_8859_1));
+        out.write(data, 0, len);
+        out.write("\r\n".getBytes(StandardCharsets.ISO_8859_1));
+        out.flush();
+    }
+
+    private static void finishChunks(OutputStream out) throws IOException {
+        out.write("0\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
+        out.flush();
     }
 
     private static String readLine(InputStream in) throws IOException {
