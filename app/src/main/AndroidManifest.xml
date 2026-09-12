@@ -19,6 +19,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".HermesActivity" android:screenOrientation="portrait" android:exported="false"/>
+
         <service android:name=".GatewayService" android:exported="false"/>
 
         <receiver android:name=".BootReceiver" android:enabled="true" android:exported="true">
