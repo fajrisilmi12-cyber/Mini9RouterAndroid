@@ -12,7 +12,7 @@ import android.widget.*;
 import java.io.*;
 
 public class MainActivity extends Activity {
-    private TextView status, log, path;
+    private TextView status, remoteStatus, remoteToken, log, path;
     private EditText configEditor;
     private final Handler handler = new Handler();
 
@@ -29,11 +29,11 @@ public class MainActivity extends Activity {
 
         TextView title = text("PicoClaw Mobile", 26, true);
         root.addView(title);
-        TextView sub = text("Native Go core untuk Android 5+ / ARMv7 · tanpa Termux/proot", 14, false);
+        TextView sub = text("Native Go core + MiniRemote shell untuk Android 5+ / ARMv7", 14, false);
         sub.setTextColor(Color.DKGRAY);
         root.addView(sub);
 
-        status = text("Status: -", 18, true);
+        status = text("PicoClaw: -", 18, true);
         status.setPadding(0,24,0,4);
         root.addView(status);
         log = text("-", 12, false);
@@ -51,8 +51,32 @@ public class MainActivity extends Activity {
         row.addView(stop, stopLp);
         root.addView(row);
 
-        path = text("Gateway: http://<IP-HP>:18790\nWeb panel: http://<IP-HP>:18791", 14, true);
+        path = text("Gateway: http://<IP-HP>:18790\nWeb panel: http://<IP-HP>:18791\nMiniRemote shell: <IP-HP>:18792", 14, true);
         root.addView(path);
+
+        TextView remoteTitle = text("MiniRemote Shell", 19, true);
+        remoteTitle.setPadding(0,24,0,4);
+        root.addView(remoteTitle);
+        remoteStatus = text("Remote: -", 14, true);
+        root.addView(remoteStatus);
+        remoteToken = text("Token: " + RemoteShellService.getOrCreateToken(this), 12, false);
+        remoteToken.setTextIsSelectable(true);
+        remoteToken.setPadding(0,6,0,8);
+        root.addView(remoteToken);
+
+        LinearLayout remoteRow = new LinearLayout(this);
+        remoteRow.setOrientation(LinearLayout.HORIZONTAL);
+        Button remoteStart = button("REMOTE ON", 0xFF2563EB);
+        Button remoteStop = button("REMOTE OFF", 0xFF6B7280);
+        remoteRow.addView(remoteStart, new LinearLayout.LayoutParams(0, 48, 1));
+        LinearLayout.LayoutParams rs = new LinearLayout.LayoutParams(0,48,1); rs.leftMargin=12;
+        remoteRow.addView(remoteStop, rs);
+        root.addView(remoteRow);
+
+        TextView remoteHelp = text("LAN test: sambungkan TCP ke port 18792, lalu kirim AUTH <token>. Contoh command: help, picoclaw status, picoclaw restart, ps, cat /proc/meminfo. Ini shell app-user, bukan root.", 12, false);
+        remoteHelp.setTextColor(Color.GRAY);
+        remoteHelp.setPadding(0,8,0,0);
+        root.addView(remoteHelp);
 
         TextView cfgTitle = text("config.json", 19, true);
         cfgTitle.setPadding(0,24,0,6);
@@ -72,15 +96,18 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams saveLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 56); saveLp.topMargin=14;
         root.addView(save, saveLp);
 
-        TextView note = text("Sesudah mengubah provider/API key, tekan SAVE CONFIG lalu STOP dan START. Web panel tersedia di port 18791 setelah service pertama kali dijalankan.", 12, false);
+        TextView note = text("Sesudah mengubah provider/API key, tekan SAVE CONFIG lalu STOP dan START. MiniRemote dibuat sebagai service terpisah di APK yang sama supaya tetap bisa hidup walau proses PicoClaw perlu direstart.", 12, false);
         note.setTextColor(Color.GRAY); note.setPadding(0,10,0,0); root.addView(note);
 
         setContentView(scroll);
         ensureConfig();
         loadConfig();
 
+        startService(new Intent(this, RemoteShellService.class).putExtra("action","START"));
         start.setOnClickListener(v -> startService(new Intent(this, PicoClawService.class).putExtra("action","START")));
         stop.setOnClickListener(v -> startService(new Intent(this, PicoClawService.class).putExtra("action","STOP")));
+        remoteStart.setOnClickListener(v -> startService(new Intent(this, RemoteShellService.class).putExtra("action","START")));
+        remoteStop.setOnClickListener(v -> startService(new Intent(this, RemoteShellService.class).putExtra("action","STOP")));
         save.setOnClickListener(v -> saveConfig());
 
         handler.post(refresh);
@@ -88,8 +115,10 @@ public class MainActivity extends Activity {
 
     private final Runnable refresh = new Runnable() {
         @Override public void run() {
-            status.setText("Status: " + PicoClawService.status);
+            status.setText("PicoClaw: " + PicoClawService.status);
             status.setTextColor(PicoClawService.running ? 0xFF0A8F62 : 0xFFC23B4A);
+            remoteStatus.setText("Remote: " + RemoteShellService.status + " · last client " + RemoteShellService.lastClient);
+            remoteStatus.setTextColor(RemoteShellService.running ? 0xFF2563EB : 0xFFC23B4A);
             log.setText("Recent output:\n" + PicoClawService.recentLog());
             handler.postDelayed(this, 1000);
         }
