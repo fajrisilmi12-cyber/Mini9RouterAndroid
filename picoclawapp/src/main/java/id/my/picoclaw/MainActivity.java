@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
-        setTitle("PicoClaw ARMv7");
+        setTitle("PicoClaw Mobile");
 
         ScrollView scroll = new ScrollView(this);
         LinearLayout root = new LinearLayout(this);
@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(Color.rgb(247,248,250));
         scroll.addView(root);
 
-        TextView title = text("PicoClaw ARMv7", 26, true);
+        TextView title = text("PicoClaw Mobile", 26, true);
         root.addView(title);
         TextView sub = text("Native Go core untuk Android 5+ / ARMv7 · tanpa Termux/proot", 14, false);
         sub.setTextColor(Color.DKGRAY);
@@ -36,8 +36,9 @@ public class MainActivity extends Activity {
         status = text("Status: -", 18, true);
         status.setPadding(0,24,0,4);
         root.addView(status);
-        log = text("-", 13, false);
+        log = text("-", 12, false);
         log.setTextColor(Color.DKGRAY);
+        log.setMaxLines(12);
         root.addView(log);
 
         LinearLayout row = new LinearLayout(this);
@@ -50,7 +51,7 @@ public class MainActivity extends Activity {
         row.addView(stop, stopLp);
         root.addView(row);
 
-        path = text("Gateway: http://<IP-HP>:18790", 14, true);
+        path = text("Gateway: http://<IP-HP>:18790\nWeb panel: http://<IP-HP>:18791", 14, true);
         root.addView(path);
 
         TextView cfgTitle = text("config.json", 19, true);
@@ -71,7 +72,7 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams saveLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 56); saveLp.topMargin=14;
         root.addView(save, saveLp);
 
-        TextView note = text("Sesudah mengubah provider/API key, tekan SAVE CONFIG lalu STOP dan START. File disimpan private di aplikasi.", 12, false);
+        TextView note = text("Sesudah mengubah provider/API key, tekan SAVE CONFIG lalu STOP dan START. Web panel tersedia di port 18791 setelah service pertama kali dijalankan.", 12, false);
         note.setTextColor(Color.GRAY); note.setPadding(0,10,0,0); root.addView(note);
 
         setContentView(scroll);
@@ -89,7 +90,7 @@ public class MainActivity extends Activity {
         @Override public void run() {
             status.setText("Status: " + PicoClawService.status);
             status.setTextColor(PicoClawService.running ? 0xFF0A8F62 : 0xFFC23B4A);
-            log.setText("Last output: " + PicoClawService.lastLine);
+            log.setText("Recent output:\n" + PicoClawService.recentLog());
             handler.postDelayed(this, 1000);
         }
     };
@@ -116,7 +117,7 @@ public class MainActivity extends Activity {
         f.getParentFile().mkdirs();
         File workspace=new File(f.getParentFile(),"workspace"); workspace.mkdirs();
         String p=workspace.getAbsolutePath().replace("\\","\\\\").replace("\"","\\\"");
-        String json="{\n  \"gateway\": {\"host\": \"0.0.0.0\", \"port\": 18790, \"log_level\": \"info\"},\n  \"agents\": {\"defaults\": {\"workspace\": \""+p+"\", \"restrict_to_workspace\": true}},\n  \"providers\": {}\n}\n";
+        String json="{\n  \"gateway\": {\"host\": \"0.0.0.0\", \"port\": 18790, \"log_level\": \"info\"},\n  \"agents\": {\"defaults\": {\"workspace\": \""+p+"\", \"restrict_to_workspace\": true}},\n  \"model_list\": []\n}\n";
         try { write(f,json); } catch(Exception ignored) {}
     }
 
