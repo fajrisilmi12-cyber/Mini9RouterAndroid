@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -28,12 +28,28 @@ jobs:
           cd /tmp/picoclaw
           git checkout bbf6893ca7afad27f1d00a0f5a45982a549c6ed6
           go generate ./...
+
           mkdir -p "$GITHUB_WORKSPACE/picoclawapp/src/main/jniLibs/armeabi-v7a"
-          CGO_ENABLED=0 GOOS=android GOARCH=arm GOARM=7 \
-            go build -tags stdjson -trimpath \
+
+          NDK="${ANDROID_NDK_LATEST_HOME:-${ANDROID_NDK_HOME:-}}"
+          if [ -z "$NDK" ]; then
+            NDK=$(ls -d "$ANDROID_SDK_ROOT"/ndk/* | sort -V | tail -1)
+          fi
+          TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          export CC="$TOOLCHAIN/armv7a-linux-androideabi21-clang"
+          export CXX="$TOOLCHAIN/armv7a-linux-androideabi21-clang++"
+
+          test -x "$CC"
+          "$CC" --version
+
+          CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 \
+            go build -tags stdjson -trimpath -buildmode=pie \
+            -ldflags='-s -w' \
             -o "$GITHUB_WORKSPACE/picoclawapp/src/main/jniLibs/armeabi-v7a/libpicoclaw.so" \
             ./cmd/picoclaw
+
           file "$GITHUB_WORKSPACE/picoclawapp/src/main/jniLibs/armeabi-v7a/libpicoclaw.so"
+          readelf -h "$GITHUB_WORKSPACE/picoclawapp/src/main/jniLibs/armeabi-v7a/libpicoclaw.so" | head -30
 
       - uses: gradle/actions/setup-gradle@v4
         with:
